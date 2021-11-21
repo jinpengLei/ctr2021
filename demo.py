@@ -7,10 +7,10 @@ from deepctr.models import DeepFM
 from deepctr.feature_column import SparseFeat, DenseFeat, get_feature_names
 
 if __name__ == "__main__":
-    data = pd.read_csv('criteo_sample_50w.csv')
+    data = pd.read_csv('CTR2021/train_data.csv')
 
-    sparse_features = ['C' + str(i) for i in range(1, 27)]
-    dense_features = ['I' + str(i) for i in range(1, 14)]
+    sparse_features = ['C' + str(i) for i in range(1, 8)]
+    dense_features = ['I' + str(i) for i in range(1, 2)]
 
     data[sparse_features] = data[sparse_features].fillna('-1', )
     data[dense_features] = data[dense_features].fillna(0, )
