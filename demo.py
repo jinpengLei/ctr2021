@@ -5,10 +5,12 @@ from sklearn.preprocessing import LabelEncoder, MinMaxScaler
 
 from deepctr.models import DeepFM
 from deepctr.feature_column import SparseFeat, DenseFeat, get_feature_names
+import logging
 
 if __name__ == "__main__":
-    data = pd.read_csv('CTR2021/train_data.csv')
-
+    train_data = pd.read_csv('CTR2021/train_data.csv')
+    test_data = pd.read_csv('CTR2021/test_data.csv')
+    data = pd.concat([train_data, test_data], keys=['train', 'test'])
     sparse_features = ['C' + str(i) for i in range(1, 8)]
     dense_features = ['I' + str(i) for i in range(1, 2)]
 
@@ -37,7 +39,7 @@ if __name__ == "__main__":
     feature_names = get_feature_names(linear_feature_columns + dnn_feature_columns)
     # 3.generate input data for model
 
-    train, test = train_test_split(data, test_size=0.2, random_state=2018)
+    train, test = data.loc['train'], data.loc['test']
     train_model_input = {name:train[name] for name in feature_names}
     test_model_input = {name:test[name] for name in feature_names}
 
@@ -49,6 +51,9 @@ if __name__ == "__main__":
     history = model.fit(train_model_input, train[target].values,
                         batch_size=256, epochs=10, verbose=2, validation_split=0.2, )
     pred_ans = model.predict(test_model_input, batch_size=256)
-    print(pred_ans)
-    print("test LogLoss", round(log_loss(test[target].values, pred_ans), 4))
-    print("test AUC", round(roc_auc_score(test[target].values, pred_ans), 4))
+    pred_ans = pred_ans.flatten()
+    result = {'num': range(0, 50000), 'click_rate': pred_ans}
+    df_result = pd.DataFrame(result)
+    df_result.to_csv('CTR2021/result.csv', header=0, index=False)
+    # print("test LogLoss", round(log_loss(test[target].values, pred_ans), 4))
+    # print("test AUC", round(roc_auc_score(test[target].values, pred_ans), 4))
