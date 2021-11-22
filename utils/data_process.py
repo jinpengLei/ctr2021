@@ -71,10 +71,13 @@ def process_train():
     device_list = []
     ope_list = []
     cou = 0
+    NUMS = 40000000
     for content in content_list:
         s = content[0]
         print(cou)
         cou = cou + 1
+        if cou >= NUMS:
+            break
         s_split_list = s.split('\t')
         user_id = s_split_list[0]
         if user_id not in user_info_dict.keys():
@@ -94,6 +97,7 @@ def process_train():
     data = {'label': is_click_list, 'I1': f5_times_list, 'C1': user_id_list, 'C2': news_id_list, 'C3': internet_env_list, 'C4': age_list, 'C5': sex_list, 'C6': device_list, 'C7': ope_list}
     df_data = pd.DataFrame(data)
     df_data.to_csv('../CTR2021/train_data.csv')
+
 
 if __name__ == '__main__':
     process_train()
