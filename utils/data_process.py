@@ -71,12 +71,9 @@ def process_train():
     device_list = []
     ope_list = []
     cou = 0
-    NUMS = 500000
     for content in content_list:
         s = content[0]
         print(cou)
-        if cou >= NUMS:
-            break
         cou = cou + 1
         s_split_list = s.split('\t')
         user_id = s_split_list[0]
