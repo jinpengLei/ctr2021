@@ -1,5 +1,6 @@
 import pandas as pd
 import numpy as np
+import tensorflow as tf
 def process_train():
     df = pd.read_csv('../CTR2021/train_info.txt')
     user_info_dict = {}
@@ -183,4 +184,7 @@ def process_test():
     df_data.to_csv('../CTR2021/test_data.csv')
 
 if __name__ == '__main__':
-    process_test()
+    # process_test()
+
+
+    print(tf.test.is_gpu_available())

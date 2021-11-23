@@ -6,7 +6,6 @@ from sklearn.preprocessing import LabelEncoder, MinMaxScaler
 from deepctr.models import DeepFM
 from deepctr.feature_column import SparseFeat, DenseFeat, get_feature_names
 import logging
-
 if __name__ == "__main__":
     train_data = pd.read_csv('CTR2021/train_data.csv')
     test_data = pd.read_csv('CTR2021/test_data.csv')
