@@ -67,8 +67,10 @@ def process_train():
     ope_list = []
     cou = 1
     for content in content_list:
+        if cou > 500000:
+            break
         s = content[0]
-        if cou % 10000000 == 0:
+        if cou % 10000 == 0:
             print(cou)
         cou = cou + 1
         s_split_list = s.split('\t')
