@@ -54,5 +54,6 @@ if __name__ == "__main__":
     result = {'num': range(0, 50000), 'click_rate': pred_ans}
     df_result = pd.DataFrame(result)
     df_result.to_csv('CTR2021/result.csv', header=0, index=False)
+    print("model training finish!")
     # print("test LogLoss", round(log_loss(test[target].values, pred_ans), 4))
     # print("test AUC", round(roc_auc_score(test[target].values, pred_ans), 4))
