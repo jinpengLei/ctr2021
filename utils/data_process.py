@@ -1,9 +1,11 @@
 import pandas as pd
 import numpy as np
 import tensorflow as tf
+import time
 def process_train():
     df = pd.read_csv('../CTR2021/train_info.txt')
     user_info_dict = {}
+    doc_info_dict = {}
     with open('../CTR2021/user_info.txt', encoding='utf-8') as f:
         line = f.readline()
         while line:
@@ -52,6 +54,35 @@ def process_train():
             user_info_dict[user_id] = {'device': s_split_list[1], 'os': s_split_list[2], 'provice': s_split_list[3],
                                        'city': s_split_list[4], 'age': age_index, 'sex': sex}
             line = f.readline()
+    with open('../CTR2021/news_info.txt', encoding='utf-8') as f:
+        line = f.readline()
+        while line:
+            flag = False
+            s_split_list = line.split('\t')
+            if len(s_split_list) < 7:
+                flag = True
+            for l in s_split_list:
+                if l == "":
+                    flag = True
+                    break
+            if flag:
+                line = f.readline()
+                continue
+            doc_id = s_split_list[0]
+            doc_title = s_split_list[1]
+            publish_time = s_split_list[2]
+            publish_time = int(publish_time[:-2]) // 1000
+            local_publish_time = time.localtime(publish_time)
+            dt = time.strftime("%Y-%m-%d %H:%M:%S", local_publish_time)
+            timeArray = time.strptime(dt, "%Y-%m-%d %H:%M:%S")
+            publish_hour = timeArray.tm_hour
+            pubulish_time_type = publish_hour // 6
+            first_class = s_split_list[4]
+            second_class = s_split_list[5]
+            keyword = s_split_list[6]
+            doc_info_dict[doc_id] = {'picture_nums': s_split_list[3], 'publish_time_type': pubulish_time_type}
+            line = f.readline()
+
     content_list = df.values
     user_id_list = []
     news_id_list = []
@@ -65,6 +96,8 @@ def process_train():
     sex_list = []
     device_list = []
     ope_list = []
+    picture_nums_list = []
+    publish_time_type_list = []
     cou = 1
     for content in content_list:
         s = content[0]
@@ -73,7 +106,8 @@ def process_train():
         cou = cou + 1
         s_split_list = s.split('\t')
         user_id = s_split_list[0]
-        if user_id not in user_info_dict.keys():
+        doc_id = s_split_list[1]
+        if user_id not in user_info_dict.keys() or doc_id not in user_info_dict.keys():
             continue
         user_id_list.append(user_id)
         news_id_list.append(s_split_list[1])
@@ -87,13 +121,16 @@ def process_train():
         sex_list.append(user_info_dict[user_id]['sex'])
         device_list.append(user_info_dict[user_id]['device'])
         ope_list.append(user_info_dict[user_id]['os'])
-    data = {'label': is_click_list, 'I1': f5_times_list, 'C1': user_id_list, 'C2': news_id_list, 'C3': internet_env_list, 'C4': age_list, 'C5': sex_list, 'C6': device_list, 'C7': ope_list}
+        picture_nums_list.append(doc_info_dict[doc_id]["picture_nums"])
+        publish_time_type_list.append(doc_info_dict[doc_id]["publish_time_type"])
+    data = {'label': is_click_list, 'I1': f5_times_list, 'I2': picture_nums_list, 'C1': user_id_list, 'C2': news_id_list, 'C3': internet_env_list, 'C4': age_list, 'C5': sex_list, 'C6': device_list, 'C7': ope_list, 'C8': publish_time_type_list}
     df_data = pd.DataFrame(data)
     df_data.to_csv('../CTR2021/train_data.csv')
     print("write data success!")
 
 def process_test():
     user_info_dict = {}
+    doc_info_dict = {}
     with open('../CTR2021/user_info.txt', encoding='utf-8') as f:
         line = f.readline()
         while line:
@@ -140,6 +177,35 @@ def process_test():
             user_info_dict[user_id] = {'device': s_split_list[1], 'os': s_split_list[2], 'provice': s_split_list[3],
                                        'city': s_split_list[4], 'age': age_index, 'sex': sex}
             line = f.readline()
+
+    with open('../CTR2021/news_info.txt', encoding='utf-8') as f:
+        line = f.readline()
+        while line:
+            flag = False
+            s_split_list = line.split('\t')
+            if len(s_split_list) < 7:
+                flag = True
+            for l in s_split_list:
+                if l == "":
+                    flag = True
+                    break
+            if flag:
+                line = f.readline()
+                continue
+            doc_id = s_split_list[0]
+            doc_title = s_split_list[1]
+            publish_time = s_split_list[2]
+            publish_time = int(publish_time[:-2]) // 1000
+            local_publish_time = time.localtime(publish_time)
+            dt = time.strftime("%Y-%m-%d %H:%M:%S", local_publish_time)
+            timeArray = time.strptime(dt, "%Y-%m-%d %H:%M:%S")
+            publish_hour = timeArray.tm_hour
+            pubulish_time_type = publish_hour // 6
+            first_class = s_split_list[4]
+            second_class = s_split_list[5]
+            keyword = s_split_list[6]
+            doc_info_dict[doc_id] = {'picture_nums': s_split_list[3], 'publish_time_type': pubulish_time_type}
+            line = f.readline()
     user_id_list = []
     news_id_list = []
     time_list = []
@@ -152,6 +218,8 @@ def process_test():
     device_list = []
     ope_list = []
     label_list = []
+    picture_nums_list = []
+    publish_time_type_list = []
     with open('../CTR2021/test_info.txt', encoding='utf-8') as f1:
         cou = 0
         s = f1.readline()
@@ -172,8 +240,10 @@ def process_test():
             sex_list.append(user_info_dict[user_id]['sex'])
             device_list.append(user_info_dict[user_id]['device'])
             ope_list.append(user_info_dict[user_id]['os'])
+            picture_nums_list.append(doc_info_dict[doc_id]["picture_nums"])
+            publish_time_type_list.append(doc_info_dict[doc_id]["publish_time_type"])
             s = f1.readline()
-    data = {'label': label_list, 'I1': f5_times_list, 'C1': user_id_list, 'C2': news_id_list, 'C3': internet_env_list, 'C4': age_list, 'C5': sex_list,  'C7': ope_list}
+    data = {'label': label_list, 'I1': f5_times_list, 'I2': picture_nums_list, 'C1': user_id_list, 'C2': news_id_list, 'C3': internet_env_list, 'C4': age_list, 'C5': sex_list, 'C6': device_list, 'C7': ope_list, 'C8': publish_time_type_list}
     df_data = pd.DataFrame(data)
     df_data.to_csv('../CTR2021/test_data.csv')
 
